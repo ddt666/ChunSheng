@@ -30,6 +30,7 @@ def app(toy_id):
     if user_socket:
         user_socket_dict[toy_id] = user_socket
 
+
     while 1:
         user_msg = user_socket.receive()
         print(user_msg)
