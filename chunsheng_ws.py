@@ -15,7 +15,7 @@ def app(app_id):
     user_socket = request.environ.get("wsgi.websocket")  # type:WebSocket
     if user_socket:
         user_socket_dict[app_id] = user_socket
-
+    print(user_socket_dict)
     while 1:
         user_msg = user_socket.receive()
         print(user_msg)  # {to_user:"toy_id",music:"xxxx.mp3"}
@@ -25,12 +25,11 @@ def app(app_id):
 
 
 @ws_app.route("/toy/<toy_id>")
-def app(toy_id):
+def toy(toy_id):
     user_socket = request.environ.get("wsgi.websocket")  # type:WebSocket
     if user_socket:
         user_socket_dict[toy_id] = user_socket
-
-
+    print(user_socket_dict)
     while 1:
         user_msg = user_socket.receive()
         print(user_msg)
