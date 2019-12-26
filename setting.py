@@ -4,6 +4,7 @@ import os
 
 MUSIC_PATH = "Music"
 IMAGE_PATH = "Image"
+QRCODE_PATH = "QRcode"
 
 # 数据库配置
 
@@ -18,3 +19,6 @@ RET = {
     "msg": "",
     "data": {}
 }
+
+# 联图配置
+LT_URL = "http://qr.liantu.com/api.php?text=%s"
