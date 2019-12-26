@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from bson import ObjectId
 
 from setting import MONGO_DB
 from setting import RET
@@ -33,5 +34,19 @@ def login():
     else:
         RET["code"] = -1
         RET["msg"] = "用户名密码错误"
+
+    return jsonify(RET)
+
+
+@users.route('/auto_login', methods=["post"])
+def auto_login():
+    user_id = request.form.to_dict()
+    user_id["_id"] = ObjectId(user_id.get("_id"))
+
+    user = MONGO_DB.users.find_one(user_id,{"password":0})
+    user["_id"] = str(user_id.get("_id"))
+    RET["code"] = 0;
+    RET["msg"] = "用户自动登录"
+    RET["data"] = user
 
     return jsonify(RET)
