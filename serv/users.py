@@ -44,9 +44,13 @@ def auto_login():
     user_id["_id"] = ObjectId(user_id.get("_id"))
 
     user = MONGO_DB.users.find_one(user_id,{"password":0})
-    user["_id"] = str(user_id.get("_id"))
-    RET["code"] = 0;
-    RET["msg"] = "用户自动登录"
-    RET["data"] = user
+    if user:
+        user["_id"] = str(user_id.get("_id"))
+        RET["code"] = 0
+        RET["msg"] = "用户自动登录"
+        RET["data"] = user
+    else:
+        RET["code"] = 1
+        RET["msg"] = "没有此用户"
 
     return jsonify(RET)

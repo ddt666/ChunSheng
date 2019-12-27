@@ -19,9 +19,10 @@ def app(app_id):
     while 1:
         user_msg = user_socket.receive()
         print(user_msg)  # {to_user:"toy_id",music:"xxxx.mp3"}
-        msg_dict = json.loads(user_msg)
-        toy_socket = user_socket_dict.get(msg_dict.get("to_user"))
-        toy_socket.send(user_msg)
+        if user_msg:
+            msg_dict = json.loads(user_msg)
+            toy_socket = user_socket_dict.get(msg_dict.get("to_user"))
+            toy_socket.send(user_msg)
 
 
 @ws_app.route("/toy/<toy_id>")
