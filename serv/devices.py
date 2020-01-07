@@ -90,3 +90,28 @@ def toy_list():
     RET["msg"] = "查找所有玩具列表"
     RET["data"] = toy_l
     return jsonify(RET)
+
+
+@devices.route("/device_login", methods=["POST"])
+def device_login():
+    dev_info = request.form.to_dict()
+    dev = MONGO_DB.devices.find_one(dev_info)
+    if dev:
+        toy = MONGO_DB.toys.find_one(dev_info)
+        if toy:
+            return jsonify({"music": "Welcome.mp3", "info": str(toy.get("_id"))})
+        return jsonify({"music": "NoBind.mp3"})
+    else:
+        return jsonify({"music": "NoLic.mp3"})
+
+
+@devices.route("/toy_info", methods=["POST"])
+def toy_info():
+    toy_id=request.form.get("toy_id")
+    toy_info= MONGO_DB.toys.find_one({"_id":ObjectId(toy_id)})
+    toy_info["_id"]=str(toy_info.get("_id"))
+
+    RET["code"] = 0
+    RET["msg"] = "玩具信息"
+    RET["data"] = toy_info
+    return jsonify(RET)
