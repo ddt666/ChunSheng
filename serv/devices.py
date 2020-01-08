@@ -15,6 +15,16 @@ def validate_code():
         RET["code"] = 0
         RET["msg"] = "设备已授权，开启绑定"
         RET["data"] = res
+
+        # 添加好友
+        toy = MONGO_DB.toys.find_one(code)
+
+        if toy:
+            toy["_id"] = str(toy.get("_id"))
+
+            RET["code"] = 1
+            RET["msg"] = "开启好友绑定"
+            RET["data"] = toy
     else:
         RET["code"] = 2
         RET["msg"] = "非授权设备"
@@ -107,9 +117,9 @@ def device_login():
 
 @devices.route("/toy_info", methods=["POST"])
 def toy_info():
-    toy_id=request.form.get("toy_id")
-    toy_info= MONGO_DB.toys.find_one({"_id":ObjectId(toy_id)})
-    toy_info["_id"]=str(toy_info.get("_id"))
+    toy_id = request.form.get("toy_id")
+    toy_info = MONGO_DB.toys.find_one({"_id": ObjectId(toy_id)})
+    toy_info["_id"] = str(toy_info.get("_id"))
 
     RET["code"] = 0
     RET["msg"] = "玩具信息"

@@ -2,6 +2,7 @@
 
 import os
 
+
 MUSIC_PATH = "Music"
 IMAGE_PATH = "Image"
 CHATS_PATH = "Chats"

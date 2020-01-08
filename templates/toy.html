@@ -12,6 +12,7 @@
 
 <audio autoplay controls id="player" src=""></audio>
 <p>消息来自:<span id="from_user"></span></p>
+<p>好友类型:<span id="friend_type"></span></p>
 
 <p>
     <button onclick="start_reco()" style="background-color: yellow">录制声音</button>
@@ -32,6 +33,29 @@
     var ws = null;
     var toy_id = null;
 
+
+     function create_ws(serv_ws, toy_id) {
+        ws = new WebSocket(serv_ws + toy_id);
+        ws.onopen=function(){
+            console.log(ws)
+        }
+        ws.onmessage = function (data) {
+            console.log(data)
+            var msg = JSON.parse(data.data);
+            if (msg.music) {
+                document.getElementById("player").src = serv + "/get_music/" + msg.music;
+            } else {
+                document.getElementById("player").src = serv + "/get_chat/" + msg.chat;
+                $("#from_user").text(msg.from_user)
+                $("#friend_type").text(msg.friend_type)
+            }
+
+
+        };
+        ws.onclose = function () {
+            create_ws(serv_ws, toy_id)
+        }
+    }
     function Open_toy() {
         var device_key = $("#device_key").val();
         $.ajax({
@@ -42,24 +66,14 @@
                 console.log(ret)
                 document.getElementById("player").src = serv + "/get_music/" + ret.music;
                 toy_id = ret.info;
-                ws = new WebSocket(serv_ws + toy_id)
-                ws.onmessage = function (data) {
-                    console.log(data)
-                    var msg = JSON.parse(data.data)
-                    if (msg.music) {
-                        document.getElementById("player").src = serv + "/get_music/" + msg.music;
-                    } else {
-                        document.getElementById("player").src = serv + "/get_chat/" + msg.chat;
-                        $("#from_user").text(msg.from_user)
-                    }
-
-
-                }
+                create_ws(serv_ws, toy_id)
             }
 
         })
 
     }
+
+
 
     var reco = null;
     var audio_context = new AudioContext();
@@ -110,11 +124,13 @@
                 data: formdata,
                 dataType: 'json',
                 success: function (data) {
-                    $("#from_user").text(data.from_user)
-                    if(data.chat){
-                        $("#player").attr("src",serv+"/get_chat/"+data.chat)
-                    }else{
-                         $("#player").attr("src",serv+"/get_music/"+data.music)
+                    console.log(data)
+                    $("#from_user").text(data.from_user);
+                    $("#friend_type").text(data.friend_type);
+                    if (data.chat) {
+                        $("#player").attr("src", serv + "/get_chat/" + data.chat)
+                    } else {
+                        $("#player").attr("src", serv + "/get_music/" + data.music)
                     }
 
                 }
@@ -142,7 +158,8 @@
                         var send_str = {
                             "to_user": document.getElementById("from_user").innerText,
                             "from_user": toy_id,
-                            "filename": data.filename
+                            "filename": data.filename,
+                            "friend_type": document.getElementById("friend_type").innerText,
                         }
                         var send_json = JSON.stringify(send_str);
                         ws.send(send_json);
@@ -164,15 +181,20 @@
             },
             success: function (ret) {
                 console.log(ret)
-                if (ret.length > 0) {
+                if (ret.chat_list.length > 0) {
+                    document.getElementById("from_user").innerText = ret.from_user;
+                    document.getElementById("friend_type").innerText = ret.friend_type;
                     var player = document.getElementById("player");
-
-                    player.src = serv + "/get_chat/" + ret.shift().msg;
+                    //$("#from_user").text(msg.from_user)
+                    //$("#friend_type").text(msg.friend_type)
+                    var chat = ret.chat_list.shift();
+                    console.log(chat);
+                    player.src = serv + "/get_chat/" + chat.msg;
                     player.onended = function () {
-                        if (ret.length == 0) {
+                        if (ret.chat_list.length == 0) {
                             return
                         }
-                        player.src = serv + "/get_chat/" + ret.shift().msg;
+                        player.src = serv + "/get_chat/" + ret.chat_list.shift().msg;
                     }
                 }
             }
